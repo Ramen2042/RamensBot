@@ -1,0 +1,23 @@
+plugins {
+    id 'java'
+}
+
+group 'fr.ramen.bot'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+}
+
+dependencies {
+    implementation "com.discord4j:discord4j-core:3.2.3"
+}
+
+test {
+    useJUnitPlatform()
+}
