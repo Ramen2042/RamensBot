@@ -2,6 +2,7 @@ package com.ramen.gui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -14,15 +15,18 @@ public class BotFrame extends JFrame {
         setTitle("Bot Controller");
         setBackground(Color.white);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(700, 600);
+        setSize(800, 600);
         setLocationRelativeTo(null);
 
         consoleText.setEditable(false);
         consoleText.setCaretColor(Color.MAGENTA);
 
-        inputText.setPreferredSize(new Dimension());
+        inputText.setPreferredSize(new Dimension(500, 23));
+        inputText.setFont(new Font(inputText.getFont().getName(), inputText.getFont().getStyle(), inputText.getFont().getSize() + 5));
+        inputText.setAutoscrolls(true);
 
-        enterButton.addActionListener(e -> isEntered = true);
+        enterButton.setMnemonic(KeyEvent.VK_ENTER);
+        enterButton.addActionListener(e -> isEntered = !inputText.getText().isBlank());
 
         JPanel inputPanel = new JPanel();
         inputPanel.add(inputText);
@@ -47,5 +51,9 @@ public class BotFrame extends JFrame {
         String line = inputText.getText();
         inputText.setText(null);
         return line;
+    }
+
+    public static void main(String[] args) {
+        new BotFrame();
     }
 }

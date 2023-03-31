@@ -182,15 +182,21 @@ public class Main {
                         event.getMessage().getChannel().block()
                                 .createMessage("<:gwen_coeur:1049284716831981618>")
                                 .withMessageReference(event.getMessage().getId()).subscribe();
-                default -> {
-                    botFrame.println("Message reçu de %s, id : %d, message : %s%n".formatted(event.getMessage().getAuthor().get().getUsername(), event.getMessage().getAuthor().get().getId().asLong(), event.getMessage().getContent()));
-                    botFrame.println(event.getMessage().getContent());
-                }
+                default ->
+                        botFrame.println("Message reçu de %s, id : %d, message : \"%s\" dans le serveur %s".formatted(
+                                event.getMessage().getAuthor().get().getUsername(),
+                                event.getMessage().getAuthor().get().getId().asLong(),
+                                event.getMessage().getContent(),
+                                event.getMessage()));
             }
         });
 
         ObjectInputStream finalDeserializeParameters = deserializeParameters;
         gateway.on(ComponentInteractionEvent.class, event -> {
+            User user = event.getMessage().get().getAuthor().get();
+
+            botFrame.println("L'utilisateur %s, id : %d a interagi avec le message \"%s\", id : %d ".formatted(user.toString(), user.getId().asLong(), event.getMessage().get().getContent(), event.getMessage().get().getId().asLong()));
+
             ObjectOutputStream serializeParameters;
             try {
                 serializeParameters = new ObjectOutputStream(new BufferedOutputStream(Files.newOutputStream(guildParametersPath)));
@@ -235,14 +241,16 @@ public class Main {
             return null;
         });
 
-        Scanner scanner = new Scanner(System.in);
         String string;
         do {
             System.out.print(">>> ");
-            string = scanner.nextLine();
+            string = botFrame.nextString();
             if (string.contains("getGuilds")) System.out.println(gateway.getGuilds().collectSortedList().block());
             else if (string.contains("getMembers")) {
-                final long guildID = Long.parseUnsignedLong(string.split("getMembers")[1].substring(1));
+                botFrame.println("Entre l'id du serveur :");
+
+                final long guildID = Long.parseUnsignedLong(botFrame.nextString());
+
                 Guild result = null;
                 for (Guild guild : gateway.getGuilds().collectSortedList().block()) {
                     if (guildID == guild.getId().asLong())
@@ -251,16 +259,18 @@ public class Main {
                 botFrame.println(result.getMembers().collectSortedList().block());
             }
             else if (string.contains("sendDM")) {
+                botFrame.println("Entre l'id de l'utilisateur :");
+                String idString = botFrame.nextString();
                 User user;
                 try {
-                    user = gateway.getUserById(Snowflake.of(Long.parseUnsignedLong(string.split("sendDM")[0].substring(1)))).block();
-                } catch (ArrayIndexOutOfBoundsException e) {
+                    user = gateway.getUserById(Snowflake.of(Long.parseUnsignedLong(idString))).block();
+                } catch (ArrayIndexOutOfBoundsException|NumberFormatException e) {
                     botFrame.println("Merci d'ajouter l'id d'un utilisateur");
                     continue;
                 }
                 assert user != null;
                 botFrame.println("Entre ton message :");
-                String message = scanner.nextLine();
+                String message = botFrame.nextString();
                 user.getPrivateChannel().block().createMessage(message).subscribe();
                 botFrame.println("Message envoyé à l'utilisateur " + user.getUsername() + ", id : " + user.getId().asLong());
             } else gateway.getGuildById(Snowflake.of(botGuildID)).block().getSystemChannel().block().createMessage(string).subscribe();
