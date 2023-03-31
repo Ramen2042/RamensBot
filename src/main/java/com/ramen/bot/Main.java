@@ -1,5 +1,6 @@
 package com.ramen.bot;
 
+import com.ramen.gui.BotFrame;
 import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.GatewayDiscordClient;
@@ -14,36 +15,48 @@ import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.SelectMenu;
 import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.User;
+import discord4j.core.object.entity.channel.Channel;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
+import reactor.core.publisher.Flux;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) {
-
         final DiscordClient client = DiscordClient.create(args[0]);
         final GatewayDiscordClient gateway = client.login().block();
 
-        ObjectOutputStream serializeParameters = null;
+        long botGuildID = 1087812205438836827L;
+
+        assert gateway != null;
+
         ObjectInputStream deserializeParameters = null;
+
+        final Path guildParametersPath = Path.of("src/main/resources/guildParameters.botdata");
+
         try {
-            Path path = Path.of("src/main/resources/guildParameters.botdata");
-            serializeParameters = new ObjectOutputStream(new BufferedOutputStream(Files.newOutputStream(path)));
-            serializeParameters.defaultWriteObject();
-            serializeParameters.flush();
-            deserializeParameters = new ObjectInputStream(new BufferedInputStream(Files.newInputStream(path)));
+            if (Files.newInputStream(guildParametersPath).readAllBytes().length == 0) {
+                ObjectOutputStream serializeParameters = new ObjectOutputStream(new BufferedOutputStream(Files.newOutputStream(guildParametersPath)));
+                serializeParameters.writeObject(new GuildParameters().initializeForAllGuilds(gateway.getGuilds().collectList().block()));
+                serializeParameters.close();
+            }
+
+            deserializeParameters = new ObjectInputStream(new BufferedInputStream(Files.newInputStream(guildParametersPath)));
         } catch (IOException e) {
             System.out.println("Erreur lors de la création des de/serializers : " + e.getMessage());
             e.printStackTrace();
         }
 
-        assert gateway != null;
+        BotFrame botFrame = new BotFrame();
 
         // Get our application's ID
         long applicationId = gateway.getRestClient().getApplicationId().block();
@@ -82,29 +95,28 @@ public class Main {
                 .description("Modifier les paramètres du bot de ce serveur")
                 .build();
 
-        long guildID = 1087812205438836827L;
-
         gateway.getRestClient().getApplicationService()
-                .createGuildApplicationCommand(applicationId, guildID, pingCmd)
+                .createGuildApplicationCommand(applicationId, botGuildID, pingCmd)
                 .subscribe();
 
         gateway.getRestClient().getApplicationService()
-                .createGuildApplicationCommand(applicationId, guildID, setParametersCmd)
+                .createGuildApplicationCommand(applicationId, botGuildID, setParametersCmd)
                 .subscribe();
 
-        //Objects.requireNonNull(gateway.getRestClient().getApplicationService().getGuildApplicationCommands(applicationId, guildID).collectSortedList().block()).forEach(commandData -> {
+        //Objects.requireNonNull(gateway.getRestClient().getApplicationService().getGuildApplicationCommands(applicationId, botGuildID).collectSortedList().block()).forEach(commandData -> {
         //    System.out.println(commandData.name());
-        //    gateway.getRestClient().getApplicationService().deleteGuildApplicationCommand(applicationId, guildID, commandData.id().asLong()).subscribe();
+        //    gateway.getRestClient().getApplicationService().deleteGuildApplicationCommand(applicationId, botGuildID, commandData.id().asLong()).subscribe();
         //});
 
         gateway.on(GuildCreateEvent.class, event -> event.getGuild().getSystemChannel().block().createMessage("Bonjour !")).subscribe();
 
         gateway.on(ReconnectEvent.class, event -> {
+            ArrayList<Object> messagesFlux = new ArrayList<>();
             for (Guild guild : gateway.getGuilds().collectSortedList().block()) {
-                guild.getSystemChannel().block().createMessage("Rebonjour !").subscribe();
+                messagesFlux.add(guild.getSystemChannel().block().createMessage("Rebonjour !"));
             }
-            return null;
-        });
+            return Flux.just(messagesFlux.toArray());
+        }).subscribe();
 
         gateway.on(ChatInputInteractionEvent.class, event -> {
             switch (event.getCommandName()) {
@@ -152,6 +164,11 @@ public class Main {
         HashMap<Snowflake, String> textToJavaCmdData;
 
         gateway.on(MessageCreateEvent.class).subscribe(event -> {
+            if (event.getMessage().getChannel().block().getType().equals(Channel.Type.DM)) {
+                System.out.printf("Message privé reçu de %s, id : %d, message : %s%n", event.getMessage().getAuthor().get().getUsername(), event.getMessage().getAuthor().get().getId().asLong(), event.getMessage().getContent());
+                return;
+            }
+
             switch (event.getMessage().getContent()) {
                 case "!Text To Java" ->
                         event.getMessage().getChannel().block()
@@ -165,13 +182,23 @@ public class Main {
                         event.getMessage().getChannel().block()
                                 .createMessage("<:gwen_coeur:1049284716831981618>")
                                 .withMessageReference(event.getMessage().getId()).subscribe();
+                default -> {
+                    botFrame.println("Message reçu de %s, id : %d, message : %s%n".formatted(event.getMessage().getAuthor().get().getUsername(), event.getMessage().getAuthor().get().getId().asLong(), event.getMessage().getContent()));
+                    botFrame.println(event.getMessage().getContent());
+                }
             }
         });
 
-        ObjectOutputStream finalSerializeParameters = serializeParameters;
         ObjectInputStream finalDeserializeParameters = deserializeParameters;
         gateway.on(ComponentInteractionEvent.class, event -> {
-            if (event.getInteraction().getData().data().get().components().get().get(0).customId().get().equals("test"))
+            ObjectOutputStream serializeParameters;
+            try {
+                serializeParameters = new ObjectOutputStream(new BufferedOutputStream(Files.newOutputStream(guildParametersPath)));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            if (event.getInteraction().getData().data().get().components().get().get(0).customId().get().equals("test"));
             switch (event.getCustomId()) {
                 case "automaticMessagesParameter" ->
                         event.edit().withComponents(ActionRow.of(SelectMenu.of("selectCommandParameter", SelectMenu.Option.of("Commande /ping", "pingCommandParameter"))));
@@ -190,17 +217,65 @@ public class Main {
                     } else {
                         guildParameters.setGuildParameter(event.getMessage().get().getGuildId().get().asLong(), "pingCommandParameter", true);
                         try {
-                            finalSerializeParameters.writeObject(guildParameters);
-                            finalSerializeParameters.flush();
+                            serializeParameters.writeObject(guildParameters);
+                            serializeParameters.flush();
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
                     }
                 }
             }
+
+            try {
+                serializeParameters.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
             return null;
         });
 
+        Scanner scanner = new Scanner(System.in);
+        String string;
+        do {
+            System.out.print(">>> ");
+            string = scanner.nextLine();
+            if (string.contains("getGuilds")) System.out.println(gateway.getGuilds().collectSortedList().block());
+            else if (string.contains("getMembers")) {
+                final long guildID = Long.parseUnsignedLong(string.split("getMembers")[1].substring(1));
+                Guild result = null;
+                for (Guild guild : gateway.getGuilds().collectSortedList().block()) {
+                    if (guildID == guild.getId().asLong())
+                        result = guild;
+                }
+                botFrame.println(result.getMembers().collectSortedList().block());
+            }
+            else if (string.contains("sendDM")) {
+                User user;
+                try {
+                    user = gateway.getUserById(Snowflake.of(Long.parseUnsignedLong(string.split("sendDM")[0].substring(1)))).block();
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    botFrame.println("Merci d'ajouter l'id d'un utilisateur");
+                    continue;
+                }
+                assert user != null;
+                botFrame.println("Entre ton message :");
+                String message = scanner.nextLine();
+                user.getPrivateChannel().block().createMessage(message).subscribe();
+                botFrame.println("Message envoyé à l'utilisateur " + user.getUsername() + ", id : " + user.getId().asLong());
+            } else gateway.getGuildById(Snowflake.of(botGuildID)).block().getSystemChannel().block().createMessage(string).subscribe();
+        } while (!string.equals("stop"));
+
         gateway.onDisconnect().block();
+
+        try {
+            deserializeParameters.close();
+            finalDeserializeParameters.close();
+            finalDeserializeParameters.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 }
