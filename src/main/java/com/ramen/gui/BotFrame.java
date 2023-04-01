@@ -20,21 +20,28 @@ public class BotFrame extends JFrame {
 
         consoleText.setEditable(false);
         consoleText.setCaretColor(Color.MAGENTA);
+        //consoleText.append("FEZGHTHHRYHSRTHSHSTRHSTHSRTHSTHFEZGHTHHRYHSRTHSHSTRHSTHSRTHSTHFEZGHTHHRYHSRTHSHSTRHSTHSRTHSTHFEZGHTHHRYHSRTHSHSTRHSTHSRTHSTHFEZGHTHHRYHSRTHSHSTRHSTHSRTHSTHFEZGHTHHRYHSRTHSHSTRHSTHSRTHSTH\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nGTHRSTHTRHSHSHT");
+        consoleText.setLineWrap(true);
+        JScrollPane consoleScroll = new JScrollPane(consoleText);
 
-        inputText.setPreferredSize(new Dimension(500, 23));
+        inputText.setPreferredSize(new Dimension(600, 50));
         inputText.setFont(new Font(inputText.getFont().getName(), inputText.getFont().getStyle(), inputText.getFont().getSize() + 5));
-        inputText.setAutoscrolls(true);
+        inputText.setToolTipText("Entre ton message ici");
+        JScrollPane inputScroll = new JScrollPane(inputText);
+        inputScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        inputScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-        enterButton.setMnemonic(KeyEvent.VK_ENTER);
         enterButton.addActionListener(e -> isEntered = !inputText.getText().isBlank());
+        enterButton.setMnemonic(KeyEvent.VK_ENTER);
+        enterButton.setEnabled(false);
 
         JPanel inputPanel = new JPanel();
-        inputPanel.add(inputText);
+        inputPanel.add(inputScroll);
         inputPanel.add(enterButton);
 
         getContentPane().setLayout(new BorderLayout());
 
-        getContentPane().add(consoleText, BorderLayout.CENTER);
+        getContentPane().add(consoleScroll, BorderLayout.CENTER);
         getContentPane().add(inputPanel, BorderLayout.SOUTH);
 
         setVisible(true);
@@ -46,10 +53,12 @@ public class BotFrame extends JFrame {
     }
 
     public String nextString() {
+        enterButton.setEnabled(true);
         while (!isEntered) Thread.onSpinWait();
         isEntered = false;
         String line = inputText.getText();
         inputText.setText(null);
+        enterButton.setEnabled(false);
         return line;
     }
 

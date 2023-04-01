@@ -7,6 +7,8 @@ import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.guild.GuildCreateEvent;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
+import discord4j.core.event.domain.lifecycle.ConnectEvent;
+import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.lifecycle.ReconnectEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -95,6 +97,17 @@ public class Main {
                 .description("Modifier les paramètres du bot de ce serveur")
                 .build();
 
+        ApplicationCommandRequest textToJavaCmd = ApplicationCommandRequest.builder()
+                .name("Text-To-Java")
+                .description("Transforme votre texte en Java")
+                .addOption(ApplicationCommandOptionData.builder()
+                        .name("random")
+                        .description("Déterminer si le bot utilisera un message aléatoire")
+                        .type(ApplicationCommandOption.Type.BOOLEAN.getValue())
+                        .required(false)
+                        .build()
+                ).build();
+
         gateway.getRestClient().getApplicationService()
                 .createGuildApplicationCommand(applicationId, botGuildID, pingCmd)
                 .subscribe();
@@ -111,6 +124,7 @@ public class Main {
         gateway.on(GuildCreateEvent.class, event -> event.getGuild().getSystemChannel().block().createMessage("Bonjour !")).subscribe();
 
         gateway.on(ReconnectEvent.class, event -> {
+            botFrame.println("Reconnecté !");
             ArrayList<Object> messagesFlux = new ArrayList<>();
             for (Guild guild : gateway.getGuilds().collectSortedList().block()) {
                 messagesFlux.add(guild.getSystemChannel().block().createMessage("Rebonjour !"));
@@ -118,9 +132,14 @@ public class Main {
             return Flux.just(messagesFlux.toArray());
         }).subscribe();
 
+        gateway.on(ConnectEvent.class, event -> {
+            botFrame.println("Connecté !");
+            return null;
+        }).subscribe();
+
         gateway.on(ChatInputInteractionEvent.class, event -> {
             switch (event.getCommandName()) {
-                case "ping":
+                case "ping" -> {
                     if (event.getOption("random").isPresent()) {
                         if (!event.getOption("random")
                                 .flatMap(ApplicationCommandInteractionOption::getValue)
@@ -149,47 +168,19 @@ public class Main {
                             default -> throw new IllegalStateException("Unexpected value: " + random);
                         };
                     }
-                case "setMembersCountChannel":
-                    if (event.getOption("createNewChannel").isPresent()) {
-
+                }
+                case "modifier-paramètres" -> {
+                    Channel.Type type = event.getInteraction().getChannel().block().getType();
+                    if (!type.equals(Channel.Type.DM) & !type.equals(Channel.Type.GROUP_DM)) return event.reply("Pour utiliser cette commande, il faut que vous soyez dans un serveur.");
+                    if (event.getInteraction().getMember().get().getBasePermissions().block().) {
+                        return event.reply().withComponents(ActionRow.of(SelectMenu.of("botParametersMenu", SelectMenu.Option.of("Messages automatiques", "automaticMessagesParameter"))));
                     }
-                    break;
-                case "modifier-paramètres":
-                    return event.reply().withComponents(ActionRow.of(SelectMenu.of("botParametersMenu", SelectMenu.Option.of("Messages automatiques", "automaticMessagesParameter"))));
-                default:
+                }
+                default -> {
+                    return null;
+                }
             }
-            return null;
         }).subscribe();
-
-        HashMap<Snowflake, String> textToJavaCmdData;
-
-        gateway.on(MessageCreateEvent.class).subscribe(event -> {
-            if (event.getMessage().getChannel().block().getType().equals(Channel.Type.DM)) {
-                System.out.printf("Message privé reçu de %s, id : %d, message : %s%n", event.getMessage().getAuthor().get().getUsername(), event.getMessage().getAuthor().get().getId().asLong(), event.getMessage().getContent());
-                return;
-            }
-
-            switch (event.getMessage().getContent()) {
-                case "!Text To Java" ->
-                        event.getMessage().getChannel().block()
-                                .createMessage("Entre maintenant ton script. Si tu veux arrêter, fais !cancel.")
-                                .withMessageReference(event.getMessage().getId()).subscribe();
-                case "!cancel" ->
-                        event.getMessage().getChannel().block()
-                                .createMessage("Tu as bien arrêté l'enregistrement de ton script.")
-                                .withMessageReference(event.getMessage().getId()).subscribe();
-                case "!emoji test" ->
-                        event.getMessage().getChannel().block()
-                                .createMessage("<:gwen_coeur:1049284716831981618>")
-                                .withMessageReference(event.getMessage().getId()).subscribe();
-                default ->
-                        botFrame.println("Message reçu de %s, id : %d, message : \"%s\" dans le serveur %s".formatted(
-                                event.getMessage().getAuthor().get().getUsername(),
-                                event.getMessage().getAuthor().get().getId().asLong(),
-                                event.getMessage().getContent(),
-                                event.getMessage()));
-            }
-        });
 
         ObjectInputStream finalDeserializeParameters = deserializeParameters;
         gateway.on(ComponentInteractionEvent.class, event -> {
@@ -239,6 +230,38 @@ public class Main {
             }
 
             return null;
+        });
+
+        HashMap<Snowflake, HashMap<Snowflake, String>> textToJavaCmdData = null;
+
+        gateway.on(MessageCreateEvent.class).subscribe(event -> {
+            if (event.getMessage().getChannel().block().getType().equals(Channel.Type.DM)) {
+                System.out.printf("Message privé reçu de %s, id : %d, message : %s%n", event.getMessage().getAuthor().get().getUsername(), event.getMessage().getAuthor().get().getId().asLong(), event.getMessage().getContent());
+                return;
+            }
+
+            switch (event.getMessage().getContent()) {
+                case "!Text To Java" -> {
+                    event.getMessage().getChannel().block()
+                            .createMessage("Entre maintenant ton script. Si tu veux arrêter, fais !cancel.")
+                            .withMessageReference(event.getMessage().getId()).subscribe();
+                }
+                case "!cancel" -> {
+                    if (textToJavaCmdData.get(event.getMessage().getAuthorAsMember().block().getId()).equals(""))
+                        event.getMessage().getChannel().block()
+                                .createMessage("Tu as bien arrêté l'enregistrement de ton script.")
+                                .withMessageReference(event.getMessage().getId()).subscribe();
+                }
+                default ->
+                        botFrame.println("Message reçu de %s, id : %d, message : \"%s\" dans le salon \"%s\", id : %d, dans le serveur \"%s\", id : %d".formatted(
+                                event.getMessage().getAuthor().get().getUsername(),
+                                event.getMessage().getAuthor().get().getId().asLong(),
+                                event.getMessage().getContent(),
+                                event.getMessage().getChannel().block().getRestChannel().getData().block().name().get(),
+                                event.getMessage().getChannel().block().getId().asLong(),
+                                event.getMessage().getGuild().block().getName(),
+                                event.getMessage().getGuild().block().getId().asLong()));
+            }
         });
 
         String string;
