@@ -1,9 +1,10 @@
 plugins {
     id 'java'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
-group 'fr.ramen.bot'
-version '1.0-SNAPSHOT'
+group 'com.ramen.bot'
+version '1.0'
 
 repositories {
     mavenCentral()
@@ -24,4 +25,10 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.ramen.bot.Main'
+    }
 }

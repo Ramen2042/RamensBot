@@ -33,6 +33,30 @@
                 <item name="RamensBot" type="f1a62948:ProjectNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
               </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="RamensBot" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="build" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="RamensBot" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="other" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="RamensBot" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="shadow" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="RamensBot" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="verification" type="c8890929:TasksNode$1" />
+              </path>
             </expand>
             <select />
           </tree_state>
@@ -53,6 +77,9 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectId" id="2NgfzPnyNIJDFll1iQc3pZ1tC6x" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -61,41 +88,122 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
-    &quot;last_opened_file_path&quot;: &quot;/Users/lydiejullien/Fichiers Minecraft/Github/RamensBot&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/lydiejullien/Fichiers Minecraft/Github/RamensBot/src/main/java/com/ramen&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.ide.settings.web.browsers&quot;
+    &quot;project.structure.side.proportion&quot;: &quot;0.46091953&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   }
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/java/com/ramen" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/.idea" />
       <recent name="$PROJECT_DIR$/src/main" />
     </key>
   </component>
   <component name="RunManager" selected="Application.Ramen's Bot">
-    <configuration name="BotFrame" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.ramen.gui.BotFrame" />
-      <module name="RamensBot.main" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.ramen.gui.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
+    <configuration name="RamensBot [fatJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="fatJar" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
     </configuration>
+    <configuration name="RamensBot [jar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="jar" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="RamensBot [shadowJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="shadowJar" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="RamensBot-8.0-all.jar" type="JarApplication">
+      <option name="JAR_PATH" value="$PROJECT_DIR$/build/libs/RamensBot-8.0-all.jar" />
+      <option name="PROGRAM_PARAMETERS" value="MTA4NzgyODc2NTc1NDc4NTg0Mg.GbMpMR.0WDfCQsjNKi6s8z-UXIlDc5Wqr7CzsiwXxvoHU" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <method v="2" />
+    </configuration>
+    <configuration name="RamensBot-8.0.jar" type="JarApplication" temporary="true">
+      <option name="JAR_PATH" value="$PROJECT_DIR$/build/libs/RamensBot-8.0.jar" />
+      <method v="2" />
+    </configuration>
+    <configuration name="RamensBot.jar" type="JarApplication" temporary="true">
+      <option name="JAR_PATH" value="$PROJECT_DIR$/build/libs/RamensBot.jar" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Application.Ramen's Bot" />
+      <item itemvalue="Gradle.RamensBot [fatJar]" />
+      <item itemvalue="Gradle.RamensBot [jar]" />
+      <item itemvalue="Gradle.RamensBot [shadowJar]" />
+      <item itemvalue="JAR Application.RamensBot-8.0-all.jar" />
+      <item itemvalue="JAR Application.RamensBot-8.0.jar" />
+      <item itemvalue="JAR Application.RamensBot.jar" />
+    </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.BotFrame" />
+        <item itemvalue="Gradle.RamensBot [shadowJar]" />
+        <item itemvalue="Gradle.RamensBot [fatJar]" />
+        <item itemvalue="JAR Application.RamensBot.jar" />
+        <item itemvalue="Gradle.RamensBot [jar]" />
+        <item itemvalue="JAR Application.RamensBot-8.0.jar" />
       </list>
     </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SvnConfiguration">
+    <configuration>$USER_HOME$/.subversion</configuration>
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="aad9b406-471d-4ba1-9ed5-13a6745be94e" name="Changes" comment="" />
