@@ -11,7 +11,11 @@ public class BotFrame extends JFrame {
     JTextArea inputText = new JTextArea();
     JButton enterButton = new JButton("Entrer");
     volatile boolean isEntered = false;
-    public BotFrame() {
+    boolean enable = true;
+
+    public BotFrame(boolean enable) {
+        this.enable = enable;
+        if (!enable) return;
         setTitle("Bot Controller");
         setBackground(Color.white);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -48,6 +52,7 @@ public class BotFrame extends JFrame {
     }
 
     public void println(Object... objectsToPrint) {
+        if (!enable) return;
         String textToPrint = Arrays.stream(objectsToPrint).map(Object::toString).collect(Collectors.joining());
         consoleText.append(textToPrint + "\n");
     }
@@ -63,6 +68,10 @@ public class BotFrame extends JFrame {
     }
 
     public static void main(String[] args) {
-        new BotFrame();
+        new BotFrame(args[1].equals("enable") ? true : false);
+    }
+
+    public BotFrame setEnable() {
+        return this;
     }
 }

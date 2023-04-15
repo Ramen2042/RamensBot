@@ -1,5 +1,6 @@
 package com.ramen.bot;
 
+import com.ramen.language.Language;
 import discord4j.core.object.entity.Guild;
 
 import java.io.Serial;
@@ -34,8 +35,9 @@ public class GuildParameters implements Serializable {
     public static final String DO_NOTHING = "doNothing";
     public static final String PERMISSIONS = "permissions";
     public static final String LANGUAGE_PARAMETER = "languageParameter";
-    public static final String FRENCH_LANGUAGE = "frenchLanguage";
-    public static final String ENGLISH_LANGUAGE = "englishLanguage";
+    public static final String CUTE_MODE = "cuteMode";
+    public static final String ENABLE_SERIOUS_MODE = "seriousMode";
+    public static final String ENABLE_CUTE_MODE = "cuteMode";
 
     public GuildParameters() {
     }
@@ -82,7 +84,8 @@ public class GuildParameters implements Serializable {
         setGuildParameterIfAbsent(guild.getId().asLong(), WELCOME_MESSAGE, true);
         setGuildParameterIfAbsent(guild.getId().asLong(), WELCOME_MESSAGE_CHANNEL, DEFAULT_MESSAGE_CHANNEL);
         setGuildParameterIfAbsent(guild.getId().asLong(), PERMISSIONS, new ArrayList<String>());
-        setGuildParameterIfAbsent(guild.getId().asLong(), LANGUAGE_PARAMETER, FRENCH_LANGUAGE);
+        setGuildParameterIfAbsent(guild.getId().asLong(), LANGUAGE_PARAMETER, Language.Francais);
+        setGuildParameterIfAbsent(guild.getId().asLong(), CUTE_MODE, true);
         return this;
     }
 
@@ -96,7 +99,8 @@ public class GuildParameters implements Serializable {
         setGuildParameterIfAbsent(guild, WELCOME_MESSAGE, true);
         setGuildParameterIfAbsent(guild, WELCOME_MESSAGE_CHANNEL, DEFAULT_MESSAGE_CHANNEL);
         setGuildParameterIfAbsent(guild, PERMISSIONS, new ArrayList<String>());
-        setGuildParameterIfAbsent(guild, LANGUAGE_PARAMETER, FRENCH_LANGUAGE);
+        setGuildParameterIfAbsent(guild, LANGUAGE_PARAMETER, Language.Francais);
+        setGuildParameterIfAbsent(guild, CUTE_MODE, true);
         return this;
     }
 

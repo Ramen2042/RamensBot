@@ -1,6 +1,8 @@
 package com.ramen.language;
 
-public enum Language {
+import java.io.Serializable;
+
+public enum Language implements Serializable {
     English("english"), Francais("français");
 
     private String language;
